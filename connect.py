@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct 27 00:52:05 2020
-
-@author: tewodros
 """
 
 
@@ -14,11 +12,9 @@ from config import config
 
 def connect():
     """
-    Establish database connection and return's the 
-    connection and cursor references.
+    Establish database connection and return's the connection and cursor references.
     :return: return's (cur, conn) a cursor and 
     """
-    
     conn = None
     
     try:
