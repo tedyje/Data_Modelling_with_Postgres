@@ -10,6 +10,10 @@ import glob
 import psycopg2
 import pandas as pd
 from sql_queries import *
+from create_table import *
+from connect import connect
+from config import config
+
 
 
 def process_song_file(cur, filepath):
@@ -32,7 +36,7 @@ def process_song_file(cur, filepath):
         # insert song record
         song_data = (song_id, title, artist_id, year, duration)
         cur.execute(song_table_insert, song_data)
-    
+
     print(f"Records inserted for file {filepath}")
 
 
@@ -50,7 +54,7 @@ def process_log_file(cur, filepath):
 
     # convert timestamp column to datetime
     t = pd.Series(df['ts'], index=df.index)
-    
+
     # insert time data records
     column_labels = ["timestamp", "hour", "day", "weelofyear", "month", "year", "weekday"]
     time_data = []
@@ -71,11 +75,11 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-        
+
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
-        
+
         if results:
             songid, artistid = results
         else:
@@ -116,8 +120,13 @@ def main():
     """
     Driver function for loading songs and log data into Postgres database
     """
-    conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=newPassword")
-    cur = conn.cursor()
+
+    conn, cur = connect()
+    drop_tables(cur, conn)
+    print("\nTable dropped successfully!!")
+
+    create_tables(cur, conn)
+    print("Table created successfully!!\n")
 
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
@@ -128,10 +137,3 @@ def main():
 if __name__ == "__main__":
     main()
     print("\n\nFinished processing!!!\n\n")
-    
-
-
-
-
-
-
